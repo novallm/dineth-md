@@ -33,7 +33,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <h3 align="center">Dineth Nethsara</h3>
 <p align="center">
   WhatsApp: <a href="https://wa.me/94741566800">+94 741 566 800</a><br>
-  Instagram: <a href="https://instagram.com/dineth_nethsara">@dineth_nethsara</a><br>
+  Instagram: <a href="https://www.instagram.com/mrdinethnethsara/">@mrdinethnethsara</a><br>
   GitHub: <a href="https://github.com/DinethNethsara">@DinethNethsara</a>
 </p>
 
