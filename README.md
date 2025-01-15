@@ -16,8 +16,8 @@
 
 ## 🤝 Support
 
-- Group: [Join Support Group](https://chat.whatsapp.com/xxx)
-- Channel: [Subscribe to Updates](https://whatsapp.com/channel/xxx)
+- Group: [Join Support Group](https://chat.whatsapp.com/KghNdKeM0p66WB264utG4H)
+- Channel: [Subscribe to Updates](https://whatsapp.com/channel/0029Vb2tBId9cDDdXDgfBv3s)
 - Owner: [Contact Developer](https://wa.me/94741566800)
 
 ## 📝 License
