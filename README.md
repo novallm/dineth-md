@@ -1,4 +1,4 @@
-# DinethBot - Advanced WhatsApp Bot
+# Dineth-MD - Advanced WhatsApp Bot
 
 A powerful WhatsApp bot with AI capabilities, media processing, group management, and extensive features.
 
