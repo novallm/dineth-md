@@ -76,13 +76,6 @@ npm start
 - OpenWeatherMap - Weather info
 - CoinGecko - Crypto data (No key needed)
 
-## ⚡ Daily Limits
-- 50 AI requests
-- 100 media downloads
-- Basic image editing
-- Standard quality
-- Community support
-
 ## 🔧 Error Solutions
 - Connection issues
 - API errors
