@@ -1,0 +1,53 @@
+# Bot Configuration
+BOT_NAME=DinethBot
+BOT_VERSION=1.0.0
+PREFIX=!
+LOG_LEVEL=info
+
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/dineth_bot
+REDIS_URL=redis://localhost:6379
+REDIS_PASSWORD=your_redis_password
+SQLITE_PATH=./data/bot.db
+
+# API Keys
+OPENAI_API_KEY=your_openai_api_key
+GOOGLE_CLOUD_API_KEY=your_google_cloud_api_key
+TALKDROVE_API_KEY=your_talkdrove_api_key
+HUGGINGFACE_API_KEY=your_huggingface_api_key
+
+# Media Settings
+MAX_FILE_SIZE=100000000
+MEDIA_STORAGE_PATH=./media
+ALLOWED_MEDIA_TYPES=image/jpeg,image/png,video/mp4,audio/mp3
+
+# Security Settings
+MAX_GROUP_SIZE=256
+RATE_LIMIT_MESSAGES=30
+RATE_LIMIT_WINDOW=60000
+BLACKLISTED_WORDS=spam,scam,hack
+ADMIN_NUMBERS=1234567890,0987654321
+
+# Feature Flags
+ENABLE_AI=true
+ENABLE_VOICE=true
+ENABLE_STORIES=true
+ENABLE_POLLS=true
+ENABLE_GROUPS=true
+ENABLE_ENCRYPTION=true
+
+# Performance Settings
+CACHE_TTL=3600
+DB_POOL_SIZE=10
+CLEANUP_INTERVAL=86400000
+MAX_CONCURRENT_PROCESSES=5
+
+# Notification Settings
+NOTIFY_ON_ERROR=true
+NOTIFY_ADMIN_ON_JOIN=true
+ERROR_WEBHOOK_URL=https://your-webhook-url.com/errors
+
+# Analytics Settings
+ENABLE_ANALYTICS=true
+ANALYTICS_RETENTION_DAYS=30
+TRACK_USER_ACTIVITY=true
