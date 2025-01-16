@@ -1,5 +1,4 @@
 
-Here’s the revised Markdown file with "100% Free" highlighted for emphasis:  
 
 ```markdown
 # DinethMD - Free WhatsApp Bot
@@ -98,9 +97,6 @@ Here’s the revised Markdown file with "100% Free" highlighted for emphasis:
 
 ---
 
-
----
-
 ## 🔧 **Error Solutions**
 - Connection issues
 - API errors
@@ -139,6 +135,47 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ### 🌟 **100% Free - Made with ❤️ by DinethMD**
-```  
 
-This version ensures "100% Free" is clearly emphasized and noticeable. Let me know if you'd like more tweaks! 🚀
+<style>
+  .typing-animation {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 auto;
+    letter-spacing: .15em;
+    animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+  }
+
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: orange; }
+  }
+</style>
+
+<div align="center">
+  <h2 class="typing-animation">Thank you for using DinethMD Bot!</h2>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const typingElement = document.querySelector('.typing-animation');
+    typingElement.style.borderRight = '.15em solid orange'; // Add a cursor effect
+  });
+</script>
+```
+
+### Explanation:
+1. **Typing Animation**: The `.typing-animation` class creates a typing effect using CSS animations. The text appears as if it's being typed out.
+2. **Blinking Cursor**: The `blink-caret` animation adds a blinking cursor effect to the typing animation.
+3. **JavaScript**: The script ensures the cursor effect is applied after the DOM is fully loaded.
+
+### Usage:
+- This enhanced Markdown file can be used in environments that support HTML, CSS, and JavaScript, such as a custom web viewer or a local Markdown editor with extended capabilities.
+- For GitHub or standard Markdown viewers, the animations and styles will not render, but the content will remain intact.
+
+Let me know if you need further customization! 🚀
