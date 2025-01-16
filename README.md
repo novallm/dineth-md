@@ -1,159 +1,113 @@
-# DinethMD - Ultimate WhatsApp Bot
+# DinethMD - Free WhatsApp Bot
 
 <div align="center">
   <img src="https://i.ibb.co/XZjQZt4/dinethmd.png" width="300" height="300">
   <h1>DinethMD Bot</h1>
-  <p>The Most Advanced WhatsApp Bot with 100+ Features</p>
+  <p>Free & Open Source WhatsApp Bot with 50+ Features</p>
 </div>
 
-## 🌟 Features
+## ⭐ Free Features
 
-### 🤖 AI & Assistant
-- Advanced AI chat with OpenAI
-- Code generation & debugging
-- Writing & content creation
-- Math problem solving
+### 🤖 Basic AI (No API Key Required)
+- Simple chat responses
+- Basic writing help
+- Math calculations
 - Language translation
-- Research assistance
-- Voice chat capabilities
-- Image analysis
-- Data processing
-- Custom AI training
+- Learning assistance
 
-### 📱 Media & Downloads
-- Music downloads & lyrics
-- Video downloads (All platforms)
-- Playlist management
-- Audio editing tools
-- Podcast features
-- Live streaming
-- Movie information
-- YouTube tools
-- Live TV streaming
-- Social media downloads
+### 📱 Media Downloads
+- Music downloads
+- Video downloads
+- Audio conversion
+- Basic image editing
+- File conversion
 
-### 👥 Group Management
-- Advanced member management
+### 👥 Group Features
+- Member management
 - Admin controls
-- Group settings
-- Welcome/Goodbye messages
-- Activity tracking
+- Welcome messages
+- Basic moderation
 - Group games
-- Polls & events
-- Statistics
-- Rules management
-- Anti-spam protection
 
 ### 🛠️ Utility Tools
 - Sticker creation
-- File conversion
-- Calculator
-- Translator
+- Basic calculator
 - Web search
-- QR code generator
-- URL shortener
-- Weather information
-- News updates
 - Dictionary
+- QR generator
 
-### 🎮 Fun & Games
+### 🎮 Games & Fun
 - Quiz games
-- Truth or Dare
 - Word games
-- Math challenges
-- Trivia
-- Chess
-- Tic-tac-toe
-- Battle games
-- Card games
-- Group activities
+- Truth or Dare
+- Random facts
+- Meme generator
 
-### 🔒 Security Features
-- End-to-end encryption
-- Password management
-- Privacy controls
-- Access management
-- Security auditing
-- Backup systems
-- Anti-spam
-- Anti-phishing
-- Report system
-- User verification
+## 🚀 Easy Setup
 
-## 🚀 Getting Started
-
-### Prerequisites
+### Requirements
 - Node.js 16+
-- MongoDB
-- FFmpeg
+- Basic terminal knowledge
+- Internet connection
 
-### Installation
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/dinethmd-bot.git
-```
+### Quick Start
+1. Clone repository
+\`\`\`bash
+git clone https://github.com/dinethnethsara/dinethmd-bot.git
+\`\`\`
 
-2. Install dependencies
-```bash
+2. Install
+\`\`\`bash
 cd dinethmd-bot
 npm install
-```
+\`\`\`
 
-3. Configure environment
-```bash
-cp .env.example .env
-# Edit .env with your credentials
-```
-
-4. Start the bot
-```bash
+3. Start
+\`\`\`bash
 npm start
-```
+\`\`\`
 
-## 📝 Configuration
+4. Scan QR code with WhatsApp
 
-### Required API Keys
-1. OpenAI API (AI Features)
-2. RapidAPI (Media Tools)
-3. Cloudinary (Image Processing)
-4. OpenWeatherMap (Weather Info)
-5. CoinGecko (Crypto Data) - Free, no key needed
+## 📝 Free API Keys (Optional)
+- OpenAI API - AI features
+- RapidAPI - Media tools
+- Cloudinary - Image processing
+- OpenWeatherMap - Weather info
+- CoinGecko - Crypto data (No key needed)
 
-### Optional Settings
-- Custom prefix
-- Language preference
-- Auto-response settings
-- Group settings
-- Security options
-- Performance tuning
+## ⚡ Daily Limits
+- 50 AI requests
+- 100 media downloads
+- Basic image editing
+- Standard quality
+- Community support
 
-## 💎 Premium Features
-- Priority support
-- Unlimited API access
-- Custom features
-- Advanced AI
-- No daily limits
-- Early updates
-- Premium stickers
-- Custom branding
-- VIP support
-- Special commands
+## 🔧 Error Solutions
+- Connection issues
+- API errors
+- Media problems
+- Common fixes
+- System errors
 
-## 🤝 Contributing
-Contributions are welcome! Please check our contributing guidelines.
+## 🤝 Community
+- Free support group
+- Open source code
+- Regular updates
+- Bug fixes
+- Feature requests
 
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 💖 Support
-- Join our [WhatsApp Group](https://chat.whatsapp.com/your-group-link)
+- Join our [WhatsApp Group](https://chat.whatsapp.com/support)
 - Follow on [GitHub](https://github.com/dinethnethsara)
-- Donate: [Buy Me a Coffee](https://your-donation-link)
+- Star the repository
 
 ## 🙏 Credits
 - [WhatsApp Web API](https://github.com/adiwajshing/Baileys)
 - [Node.js](https://nodejs.org/)
-- [OpenAI](https://openai.com/)
 - [All Contributors](CONTRIBUTORS.md)
 
 ---
