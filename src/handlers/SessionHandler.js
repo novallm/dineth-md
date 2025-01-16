@@ -1,139 +1,131 @@
 const crypto = require('crypto');
-const { WebSocket } = require('ws');
+const fs = require('fs').promises;
+const path = require('path');
 
 class SessionHandler {
 	constructor(bot) {
 		this.bot = bot;
 		this.sessions = new Map();
-		this.websocket = null;
-		this.serverUrl = 'wss://dinethmd.netlify.app/ws';
-		this.reconnectAttempts = 0;
-		this.maxReconnectAttempts = 5;
+		this.sessionPath = path.join(__dirname, '../../sessions');
+		this.initializeHandler();
+	}
+
+	async initializeHandler() {
+		await fs.mkdir(this.sessionPath, { recursive: true });
+		await this.loadSessions();
+		this.startAutoSave();
 	}
 
 	generateSessionId() {
-		return crypto.randomBytes(16).toString('hex');
+		return 'session_' + crypto.randomBytes(16).toString('hex');
 	}
 
-	async createSession() {
+	async createSession(userId) {
 		const sessionId = this.generateSessionId();
 		const session = {
 			id: sessionId,
-			created: new Date(),
-			status: 'active',
-			connectionInfo: {
-				device: this.bot.sock?.user?.name || 'Unknown',
-				platform: 'WhatsApp',
-				version: '1.0.0'
+			userId: userId,
+			createdAt: Date.now(),
+			lastActive: Date.now(),
+			commands: [],
+			settings: {},
+			state: 'active',
+			metadata: {
+				device: {},
+				location: {},
+				preferences: {}
 			}
 		};
+
 		this.sessions.set(sessionId, session);
-		await this.connectToServer(sessionId);
-		return session;
+		await this.saveSession(sessionId);
+		return sessionId;
 	}
 
-	async connectToServer(sessionId) {
+	async loadSessions() {
 		try {
-			this.websocket = new WebSocket(this.serverUrl);
-			
-			this.websocket.on('open', () => {
-				this.websocket.send(JSON.stringify({
-					type: 'auth',
-					sessionId: sessionId,
-					deviceInfo: this.sessions.get(sessionId).connectionInfo
-				}));
-				this.reconnectAttempts = 0;
-			});
-
-			this.websocket.on('message', async (data) => {
-				try {
-					const message = JSON.parse(data);
-					await this.handleWebSocketMessage(message);
-				} catch (error) {
-					console.error('Error handling websocket message:', error);
+			const files = await fs.readdir(this.sessionPath);
+			for (const file of files) {
+				if (file.endsWith('.json')) {
+					const sessionData = JSON.parse(
+						await fs.readFile(path.join(this.sessionPath, file), 'utf8')
+					);
+					this.sessions.set(sessionData.id, sessionData);
 				}
-			});
-
-			this.websocket.on('close', () => {
-				if (this.reconnectAttempts < this.maxReconnectAttempts) {
-					setTimeout(() => {
-						this.reconnectAttempts++;
-						this.connectToServer(sessionId);
-					}, 5000 * Math.pow(2, this.reconnectAttempts));
-				}
-			});
-
-			this.websocket.on('error', (error) => {
-				console.error('WebSocket error:', error);
-			});
+			}
 		} catch (error) {
-			console.error('Failed to connect to server:', error);
+			console.error('Error loading sessions:', error);
 		}
 	}
 
-	async handleWebSocketMessage(message) {
-		switch (message.type) {
-			case 'command':
-				await this.handleRemoteCommand(message);
-				break;
-			case 'status':
-				await this.updateSessionStatus(message);
-				break;
-			case 'ping':
-				this.sendPong();
-				break;
-		}
-	}
-
-	async handleRemoteCommand(message) {
-		try {
-			const { command, args, chat } = message.data;
-			const result = await this.bot.commandHandler.handleRemoteCommand(command, args, chat);
-			this.sendCommandResponse(message.id, result);
-		} catch (error) {
-			this.sendCommandResponse(message.id, { error: error.message });
-		}
-	}
-
-	sendCommandResponse(messageId, result) {
-		if (this.websocket?.readyState === WebSocket.OPEN) {
-			this.websocket.send(JSON.stringify({
-				type: 'commandResponse',
-				id: messageId,
-				result
-			}));
-		}
-	}
-
-	sendPong() {
-		if (this.websocket?.readyState === WebSocket.OPEN) {
-			this.websocket.send(JSON.stringify({ type: 'pong' }));
-		}
-	}
-
-	updateSessionStatus(message) {
-		const session = this.sessions.get(message.sessionId);
+	async saveSession(sessionId) {
+		const session = this.sessions.get(sessionId);
 		if (session) {
-			session.status = message.status;
-			session.lastUpdate = new Date();
+			await fs.writeFile(
+				path.join(this.sessionPath, `${sessionId}.json`),
+				JSON.stringify(session, null, 2)
+			);
 		}
 	}
 
-	getSessionInfo(sessionId) {
+	async updateSession(sessionId, updates) {
+		const session = this.sessions.get(sessionId);
+		if (session) {
+			Object.assign(session, updates);
+			session.lastActive = Date.now();
+			await this.saveSession(sessionId);
+		}
+	}
+
+	getSession(sessionId) {
 		return this.sessions.get(sessionId);
 	}
 
-	async closeSession(sessionId) {
-		const session = this.sessions.get(sessionId);
-		if (session) {
-			session.status = 'closed';
-			this.sessions.delete(sessionId);
-			if (this.websocket?.readyState === WebSocket.OPEN) {
-				this.websocket.close();
-			}
-			return true;
+	async deleteSession(sessionId) {
+		this.sessions.delete(sessionId);
+		try {
+			await fs.unlink(path.join(this.sessionPath, `${sessionId}.json`));
+		} catch (error) {
+			console.error('Error deleting session file:', error);
 		}
-		return false;
+	}
+
+	startAutoSave() {
+		setInterval(async () => {
+			for (const [sessionId] of this.sessions) {
+				await this.saveSession(sessionId);
+			}
+		}, 5 * 60 * 1000); // Auto-save every 5 minutes
+	}
+
+	// Advanced session management features
+	async getActiveUserSessions(userId) {
+		return Array.from(this.sessions.values())
+			.filter(session => session.userId === userId && session.state === 'active');
+	}
+
+	async cleanupInactiveSessions(maxAge = 24 * 60 * 60 * 1000) { // 24 hours
+		const now = Date.now();
+		for (const [sessionId, session] of this.sessions) {
+			if (now - session.lastActive > maxAge) {
+				await this.deleteSession(sessionId);
+			}
+		}
+	}
+
+	async backupSessions() {
+		const backupPath = path.join(this.sessionPath, 'backups');
+		await fs.mkdir(backupPath, { recursive: true });
+		
+		const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+		const backupFile = path.join(backupPath, `sessions_backup_${timestamp}.json`);
+		
+		await fs.writeFile(
+			backupFile,
+			JSON.stringify(Object.fromEntries(this.sessions), null, 2)
+		);
+		
+		return backupFile;
 	}
 }
 
