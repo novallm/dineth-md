@@ -1,65 +1,105 @@
-const Command = require('../../structures/Command');
-const moment = require('moment');
+const Command = require('../../../structures/Command');
 
 class ReminderCommand extends Command {
-    constructor() {
-        super({
-            name: 'remind',
-            aliases: ['reminder', 'remindme'],
-            description: 'Set reminders',
-            category: 'utility',
-            usage: '.remind <time> <message>'
+    constructor(bot) {
+        super(bot, {
+            name: 'reminder',
+            description: 'Set and manage reminders',
+            usage: '.reminder <add|list|remove> [options]',
+            aliases: ['remind'],
+            category: 'utility'
         });
     }
 
     async execute(message, args) {
-        if (args.length < 2) {
-            return message.reply(`*Reminder Usage*
-.remind 1h Check email
-.remind 30m Call mom
-.remind 24h Birthday party
-
-Time units: s (seconds), m (minutes), h (hours), d (days)`);
+        if (!args.length) {
+            return await this.bot.sendText(message.key.remoteJid, 'Usage: .reminder <add|list|remove> [options]');
         }
 
-        const timeStr = args[0].toLowerCase();
-        const reminder = args.slice(1).join(' ');
-
-        try {
-            const duration = this.parseDuration(timeStr);
-            if (!duration) return message.reply('Invalid time format!');
-
-            const triggerTime = moment().add(duration, 'milliseconds');
-            
-            message.reply(`⏰ Reminder set for ${triggerTime.format('LLL')}\n\n${reminder}`);
-
-            // Set timeout for reminder
-            setTimeout(async () => {
-                await message.client.sendMessage(message.key.remoteJid, {
-                    text: `⏰ *REMINDER*\n\n${reminder}\n\n_Set ${duration / 3600000} hours ago_`
-                });
-            }, duration);
-
-        } catch (error) {
-            console.error('Reminder error:', error);
-            message.reply('❌ Failed to set reminder!');
+        const subCommand = args[0].toLowerCase();
+        switch (subCommand) {
+            case 'add':
+                return await this.handleAdd(message, args.slice(1));
+            case 'list':
+                return await this.handleList(message);
+            case 'remove':
+                return await this.handleRemove(message, args[1]);
+            default:
+                return await this.bot.sendText(message.key.remoteJid, 'Invalid subcommand. Available: add, list, remove');
         }
     }
 
-    parseDuration(timeStr) {
-        const unit = timeStr.slice(-1);
-        const value = parseInt(timeStr.slice(0, -1));
-        
-        if (isNaN(value)) return null;
-
-        switch (unit) {
-            case 's': return value * 1000;
-            case 'm': return value * 60000;
-            case 'h': return value * 3600000;
-            case 'd': return value * 86400000;
-            default: return null;
+    async handleAdd(message, args) {
+        if (args.length < 2) {
+            return await this.bot.sendText(message.key.remoteJid, 'Usage: .reminder add <time> <message> [recurring?]');
         }
+
+        const timeStr = args[0];
+        const recurring = args[args.length - 1].toLowerCase() === 'recurring';
+        const reminderText = args.slice(1, recurring ? -1 : undefined).join(' ');
+
+        try {
+            const time = this.parseTime(timeStr);
+            const id = await this.bot.reminderHandler.addReminder(
+                message.key.remoteJid,
+                reminderText,
+                time,
+                recurring
+            );
+
+            return await this.bot.sendText(
+                message.key.remoteJid,
+                `Reminder set for ${time.toLocaleString()}${recurring ? ' (recurring)' : ''}\nID: ${id}`
+            );
+        } catch (error) {
+            return await this.bot.sendText(message.key.remoteJid, `Failed to set reminder: ${error.message}`);
+        }
+    }
+
+    async handleList(message) {
+        const reminders = this.bot.reminderHandler.listReminders(message.key.remoteJid);
+        if (!reminders.length) {
+            return await this.bot.sendText(message.key.remoteJid, 'No active reminders');
+        }
+
+        const reminderList = reminders
+            .map(r => `ID: ${r.id}\nMessage: ${r.message}\nTime: ${new Date(r.time).toLocaleString()}\nRecurring: ${r.recurring ? 'Yes' : 'No'}`)
+            .join('\n\n');
+
+        return await this.bot.sendText(message.key.remoteJid, `Your reminders:\n\n${reminderList}`);
+    }
+
+    async handleRemove(message, id) {
+        if (!id) {
+            return await this.bot.sendText(message.key.remoteJid, 'Usage: .reminder remove <id>');
+        }
+
+        const removed = await this.bot.reminderHandler.removeReminder(id);
+        return await this.bot.sendText(
+            message.key.remoteJid,
+            removed ? `Reminder ${id} removed` : `No reminder found with ID ${id}`
+        );
+    }
+
+    parseTime(timeStr) {
+        // Support various time formats
+        if (timeStr.match(/^\d+[mhd]$/)) {
+            const value = parseInt(timeStr);
+            const unit = timeStr.slice(-1);
+            const multiplier = {
+                'm': 60000,
+                'h': 3600000,
+                'd': 86400000
+            }[unit];
+            return new Date(Date.now() + value * multiplier);
+        }
+
+        const date = new Date(timeStr);
+        if (isNaN(date.getTime())) {
+            throw new Error('Invalid time format. Use ISO date or duration (e.g., 30m, 2h, 1d)');
+        }
+        return date;
     }
 }
 
-module.exports = ReminderCommand; 
+module.exports = ReminderCommand;
