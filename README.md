@@ -6,8 +6,8 @@ A powerful WhatsApp bot with AI capabilities, media processing, group management
 
 1. **Clone the Repository**
 ```bash
-git clone https://github.com/novallm/dineth-bot.git
-cd dineth-bot
+git clone https://github.com/novallm/dineth-md.git
+cd dineth-md
 ```
 
 2. **Install Dependencies**
