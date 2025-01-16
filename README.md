@@ -1,204 +1,160 @@
-# Dineth-MD - Advanced WhatsApp Bot
+# DinethMD - Ultimate WhatsApp Bot
 
-A powerful WhatsApp bot with AI capabilities, media processing, group management, and extensive features.
+<div align="center">
+  <img src="https://i.ibb.co/XZjQZt4/dinethmd.png" width="300" height="300">
+  <h1>DinethMD Bot</h1>
+  <p>The Most Advanced WhatsApp Bot with 100+ Features</p>
+</div>
 
-## 🚀 Quick Start
+## 🌟 Features
 
-1. **Clone the Repository**
+### 🤖 AI & Assistant
+- Advanced AI chat with OpenAI
+- Code generation & debugging
+- Writing & content creation
+- Math problem solving
+- Language translation
+- Research assistance
+- Voice chat capabilities
+- Image analysis
+- Data processing
+- Custom AI training
+
+### 📱 Media & Downloads
+- Music downloads & lyrics
+- Video downloads (All platforms)
+- Playlist management
+- Audio editing tools
+- Podcast features
+- Live streaming
+- Movie information
+- YouTube tools
+- Live TV streaming
+- Social media downloads
+
+### 👥 Group Management
+- Advanced member management
+- Admin controls
+- Group settings
+- Welcome/Goodbye messages
+- Activity tracking
+- Group games
+- Polls & events
+- Statistics
+- Rules management
+- Anti-spam protection
+
+### 🛠️ Utility Tools
+- Sticker creation
+- File conversion
+- Calculator
+- Translator
+- Web search
+- QR code generator
+- URL shortener
+- Weather information
+- News updates
+- Dictionary
+
+### 🎮 Fun & Games
+- Quiz games
+- Truth or Dare
+- Word games
+- Math challenges
+- Trivia
+- Chess
+- Tic-tac-toe
+- Battle games
+- Card games
+- Group activities
+
+### 🔒 Security Features
+- End-to-end encryption
+- Password management
+- Privacy controls
+- Access management
+- Security auditing
+- Backup systems
+- Anti-spam
+- Anti-phishing
+- Report system
+- User verification
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 16+
+- MongoDB
+- FFmpeg
+
+### Installation
+1. Clone the repository
 ```bash
-git clone https://github.com/novallm/dineth-md.git
-cd dineth-md
+git clone https://github.com/yourusername/dinethmd-bot.git
 ```
 
-2. **Install Dependencies**
+2. Install dependencies
 ```bash
+cd dinethmd-bot
 npm install
 ```
 
-3. **Configure Environment**
-- Copy `.env.example` to `.env`:
+3. Configure environment
 ```bash
 cp .env.example .env
+# Edit .env with your credentials
 ```
-- Edit `.env` and add your API keys:
-  - OPENAI_API_KEY
-  - GOOGLE_CLOUD_API_KEY
-  - MONGODB_URI
-  - Other required keys
 
-4. **Start the Bot**
+4. Start the bot
 ```bash
 npm start
 ```
 
-5. **Scan QR Code**
-- A QR code will appear in your terminal
-- Scan it with WhatsApp on your phone
-- The bot is now connected!
+## 📝 Configuration
 
-## 📋 Prerequisites
+### Required API Keys
+1. OpenAI API (AI Features)
+2. RapidAPI (Media Tools)
+3. Cloudinary (Image Processing)
+4. OpenWeatherMap (Weather Info)
+5. CoinGecko (Crypto Data) - Free, no key needed
 
-- Node.js >= 16.0.0
-- MongoDB
-- Redis
-- FFmpeg (for media processing)
-- Git
+### Optional Settings
+- Custom prefix
+- Language preference
+- Auto-response settings
+- Group settings
+- Security options
+- Performance tuning
 
-## 🛠️ Installation Steps
-
-### 1. System Requirements
-
-#### Windows
-- Install Node.js from [nodejs.org](https://nodejs.org)
-- Install MongoDB from [mongodb.com](https://mongodb.com)
-- Install Redis from [redis.io](https://redis.io)
-- Install Git from [git-scm.com](https://git-scm.com)
-
-#### Linux/Mac
-```bash
-# Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install MongoDB
-sudo apt-get install -y mongodb
-
-# Install Redis
-sudo apt-get install -y redis-server
-
-# Install FFmpeg
-sudo apt-get install -y ffmpeg
-```
-
-### 2. Database Setup
-
-1. Start MongoDB:
-```bash
-sudo service mongodb start
-```
-
-2. Start Redis:
-```bash
-sudo service redis-server start
-```
-
-3. Create database:
-```bash
-mongosh
-use dineth_bot
-```
-
-### 3. Bot Configuration
-
-1. Generate API Keys:
-- OpenAI API: [platform.openai.com](https://platform.openai.com)
-- Google Cloud: [console.cloud.google.com](https://console.cloud.google.com)
-- Other required services
-
-2. Configure `.env`:
-```env
-BOT_NAME=DinethBot
-PREFIX=!
-MONGODB_URI=mongodb://localhost:27017/dineth_bot
-REDIS_URL=redis://localhost:6379
-OPENAI_API_KEY=your_key_here
-GOOGLE_CLOUD_API_KEY=your_key_here
-```
-
-## 🎯 Running the Bot
-
-### Development Mode
-```bash
-npm run dev
-```
-
-### Production Mode
-```bash
-npm start
-```
-
-### PM2 (Recommended for production)
-```bash
-npm install -g pm2
-pm2 start index.js --name dineth-bot
-```
-
-## 📱 Connecting WhatsApp
-
-1. Start the bot
-2. Scan QR code with WhatsApp
-3. Bot is ready when you see "Connected to WhatsApp"
-
-## 🤖 Using Commands
-
-Basic commands:
-- `!help` - Show all commands
-- `!image ai <prompt>` - Generate AI images
-- `!sticker` - Create sticker from media
-- `!translate <lang> <text>` - Translate text
-- `!poll create` - Create a poll
-
-Admin commands:
-- `!ban @user` - Ban user
-- `!settings` - Bot settings
-- `!broadcast` - Send broadcast
-
-## 🔧 Troubleshooting
-
-1. **QR Code Issues**
-- Delete `auth_info` folder
-- Restart bot
-- Scan new QR code
-
-2. **Connection Issues**
-```bash
-# Clear cache
-npm cache clean --force
-# Remove modules
-rm -rf node_modules
-# Reinstall
-npm install
-```
-
-3. **Database Issues**
-```bash
-# Check MongoDB status
-sudo service mongodb status
-# Check Redis status
-sudo service redis-server status
-```
-
-## 📚 Development
-
-### Project Structure
-```
-src/
-├── handlers/       # Feature handlers
-├── commands/      # Bot commands
-├── utils/         # Utilities
-└── config/        # Configuration
-```
-
-### Adding Commands
-1. Create command file in `src/commands/`
-2. Extend base command class
-3. Register in CommandHandler
-4. Test with `!help`
+## 💎 Premium Features
+- Priority support
+- Unlimited API access
+- Custom features
+- Advanced AI
+- No daily limits
+- Early updates
+- Premium stickers
+- Custom branding
+- VIP support
+- Special commands
 
 ## 🤝 Contributing
-
-1. Fork repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Open pull request
+Contributions are welcome! Please check our contributing guidelines.
 
 ## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-MIT License - See [LICENSE](LICENSE)
+## 💖 Support
+- Join our [WhatsApp Group](https://chat.whatsapp.com/your-group-link)
+- Follow on [GitHub](https://github.com/dinethnethsara)
+- Donate: [Buy Me a Coffee](https://your-donation-link)
 
-## 🆘 Support
+## 🙏 Credits
+- [WhatsApp Web API](https://github.com/adiwajshing/Baileys)
+- [Node.js](https://nodejs.org/)
+- [OpenAI](https://openai.com/)
+- [All Contributors](CONTRIBUTORS.md)
 
-- Join support group: [WhatsApp Group](https://chat.whatsapp.com/xxx)
-- Report issues on GitHub
-- Contact developer: [Developer](https://wa.me/+94741566800)
+---
+Made with ❤️ by DinethMD
