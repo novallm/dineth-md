@@ -1,154 +1,222 @@
-const session = require('../utils/SessionManager');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 class SecurityHandler {
-    constructor(bot) {
-        this.bot = bot;
-        this.spamThreshold = 5;
-        this.spamWindow = 30000; // 30 seconds
-        this.messageCache = new Map();
+    constructor() {
+        this.rateLimits = new Map();
+        this.blacklist = new Set();
+        this.securityRules = new Map();
+        this.encryptionKey = crypto.randomBytes(32);
+        this.initializeSecurityRules();
     }
 
-    async handleMessage(message) {
-        try {
-            // Anti-spam protection
-            if (await this.isSpam(message)) {
-                await this.handleSpam(message);
-                return;
-            }
-
-            // Protect against suspicious links
-            if (await this.hasSuspiciousLinks(message)) {
-                await this.handleSuspiciousContent(message);
-                return;
-            }
-
-            // Group protection
-            if (message.key.remoteJid.endsWith('@g.us')) {
-                await this.protectGroup(message);
-            }
-
-        } catch (error) {
-            console.error('Security handler error:', error);
-        }
+    initializeSecurityRules() {
+        this.securityRules.set('message', {
+            rateLimit: 30,
+            timeWindow: 60000,
+            maxLength: 4096
+        });
+        
+        this.securityRules.set('media', {
+            rateLimit: 10,
+            timeWindow: 60000,
+            maxSize: 16 * 1024 * 1024
+        });
+        
+        this.securityRules.set('group', {
+            rateLimit: 5,
+            timeWindow: 300000,
+            maxMembers: 256
+        });
     }
 
-    async protectGroup(message) {
-        const groupId = message.key.remoteJid;
-        const settings = session.getGroup(groupId).settings;
+    async validateMessage(message) {
+        const checks = await Promise.all([
+            this.checkRateLimit(message.sender, 'message'),
+            this.validateContent(message),
+            this.checkBlacklist(message.sender),
+            this.scanForThreats(message)
+        ]);
 
-        // Anti-virus scan for documents
-        if (message.message?.documentMessage) {
-            await this.scanDocument(message);
-        }
-
-        // Protect against mass mentions
-        if (message.message?.mentionedJid?.length > 10) {
-            await this.handleMassMention(message);
-        }
-
-        // Protect against suspicious invites
-        if (this.hasGroupInvite(message)) {
-            await this.handleGroupInvite(message);
-        }
+        return {
+            valid: checks.every(check => check.valid),
+            violations: checks.filter(check => !check.valid).map(check => check.reason)
+        };
     }
 
-    async isSpam(message) {
-        const userId = message.key.participant || message.key.remoteJid;
+    async checkRateLimit(userId, type) {
+        const rule = this.securityRules.get(type);
+        if (!rule) return { valid: true };
+
+        const key = `${userId}:${type}`;
+        const history = this.rateLimits.get(key) || [];
         const now = Date.now();
 
-        if (!this.messageCache.has(userId)) {
-            this.messageCache.set(userId, []);
+        // Clean old entries
+        const recentHistory = history.filter(time => now - time < rule.timeWindow);
+
+        if (recentHistory.length >= rule.rateLimit) {
+            return {
+                valid: false,
+                reason: `Rate limit exceeded for ${type}`
+            };
         }
 
-        const userMessages = this.messageCache.get(userId);
-        userMessages.push(now);
-
-        // Remove old messages outside spam window
-        const recentMessages = userMessages.filter(time => now - time < this.spamWindow);
-        this.messageCache.set(userId, recentMessages);
-
-        return recentMessages.length > this.spamThreshold;
+        recentHistory.push(now);
+        this.rateLimits.set(key, recentHistory);
+        return { valid: true };
     }
 
-    async handleSpam(message) {
-        const userId = message.key.participant || message.key.remoteJid;
-        const user = session.getUser(userId);
-        user.warnings = (user.warnings || 0) + 1;
+    async validateContent(message) {
+        const rule = this.securityRules.get('message');
+        
+        if (message.content.length > rule.maxLength) {
+            return {
+                valid: false,
+                reason: 'Message exceeds maximum length'
+            };
+        }
 
-        await this.bot.sendMessage(message.key.remoteJid, {
-            text: `⚠️ *SPAM DETECTED*\n\n@${userId.split('@')[0]} please avoid spamming!\nWarning: ${user.warnings}/3`,
-            mentions: [userId]
-        });
+        return { valid: true };
     }
 
-    // Add legitimate protection features
-    async addProtection(groupId) {
-        const settings = session.getGroup(groupId).settings;
-        settings.protection = {
-            antiSpam: true,
-            antiPhishing: true,
-            antiVirus: true,
-            antiMassMention: true,
-            antiSuspiciousLink: true
+    async checkBlacklist(userId) {
+        return {
+            valid: !this.blacklist.has(userId),
+            reason: this.blacklist.has(userId) ? 'User is blacklisted' : null
         };
-        await session.saveSession();
     }
 
-    async handleSuspiciousLinks(message) {
-        const text = message.message?.conversation || 
-                    message.message?.imageMessage?.caption ||
-                    message.message?.videoMessage?.caption;
+    async scanForThreats(message) {
+        const threats = await this.detectThreats(message);
+        return {
+            valid: threats.length === 0,
+            reason: threats.length > 0 ? `Detected threats: ${threats.join(', ')}` : null
+        };
+    }
 
-        if (!text) return false;
+    async detectThreats(message) {
+        const threats = [];
+        
+        // Check for malicious links
+        if (this.containsMaliciousLinks(message.content)) {
+            threats.push('malicious_link');
+        }
+        
+        // Check for suspicious patterns
+        if (this.hasSuspiciousPatterns(message.content)) {
+            threats.push('suspicious_pattern');
+        }
+        
+        // Check for potential phishing attempts
+        if (await this.isPhishingAttempt(message.content)) {
+            threats.push('phishing_attempt');
+        }
 
-        const suspiciousPatterns = [
+        return threats;
+    }
+
+    containsMaliciousLinks(content) {
+        const maliciousPatterns = [
             /bit\.ly/i,
             /goo\.gl/i,
-            /tinyurl\.com/i,
-            /phishing/i,
-            /hack/i,
-            /crash/i,
-            /ban/i,
-            /virus/i
+            /tinyurl\.com/i
         ];
-
-        return suspiciousPatterns.some(pattern => pattern.test(text));
-    }
-
-    async handleMassMention(message) {
-        const userId = message.key.participant || message.key.remoteJid;
-        await this.bot.sendMessage(message.key.remoteJid, {
-            text: `⚠️ *MASS MENTION DETECTED*\n\n@${userId.split('@')[0]} please avoid mass mentions!`,
-            mentions: [userId]
-        });
-    }
-
-    async scanDocument(message) {
-        // Implement document scanning
-        const doc = message.message.documentMessage;
-        const suspiciousExtensions = ['.exe', '.bat', '.cmd', '.msi', '.vbs'];
         
-        if (suspiciousExtensions.some(ext => doc.fileName.toLowerCase().endsWith(ext))) {
-            await this.handleSuspiciousContent(message);
-            return true;
-        }
-        return false;
+        return maliciousPatterns.some(pattern => pattern.test(content));
     }
 
-    async handleGroupInvite(message) {
-        const userId = message.key.participant || message.key.remoteJid;
-        const groupId = message.key.remoteJid;
-        const settings = session.getGroup(groupId).settings;
+    hasSuspiciousPatterns(content) {
+        const suspiciousPatterns = [
+            /\b(password|credit card|ssn)\b/i,
+            /\b(hack|crack|exploit)\b/i,
+            /\b(free.*money|make.*money)\b/i
+        ];
+        
+        return suspiciousPatterns.some(pattern => pattern.test(content));
+    }
 
-        if (settings.protection?.antiInvite) {
-            await this.bot.sendMessage(groupId, {
-                text: `⚠️ *UNAUTHORIZED INVITE DETECTED*\n\n@${userId.split('@')[0]} please don't share group invites!`,
-                mentions: [userId]
-            });
-            return true;
+    async isPhishingAttempt(content) {
+        const phishingIndicators = [
+            /urgent.*action required/i,
+            /verify.*account.*immediately/i,
+            /login.*credentials/i
+        ];
+        
+        return phishingIndicators.some(pattern => pattern.test(content));
+    }
+
+    generateToken(userId, permissions = []) {
+        return jwt.sign(
+            { userId, permissions },
+            this.encryptionKey.toString('hex'),
+            { expiresIn: '24h' }
+        );
+    }
+
+    verifyToken(token) {
+        try {
+            return jwt.verify(token, this.encryptionKey.toString('hex'));
+        } catch (error) {
+            return null;
         }
-        return false;
+    }
+
+    encryptMessage(message) {
+        const iv = crypto.randomBytes(16);
+        const cipher = crypto.createCipheriv(
+            'aes-256-gcm',
+            this.encryptionKey,
+            iv
+        );
+        
+        let encrypted = cipher.update(message, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        
+        return {
+            encrypted,
+            iv: iv.toString('hex'),
+            tag: cipher.getAuthTag().toString('hex')
+        };
+    }
+
+    decryptMessage(encryptedData) {
+        const decipher = crypto.createDecipheriv(
+            'aes-256-gcm',
+            this.encryptionKey,
+            Buffer.from(encryptedData.iv, 'hex')
+        );
+        
+        decipher.setAuthTag(Buffer.from(encryptedData.tag, 'hex'));
+        
+        let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        
+        return decrypted;
+    }
+
+    addToBlacklist(userId) {
+        this.blacklist.add(userId);
+    }
+
+    removeFromBlacklist(userId) {
+        this.blacklist.delete(userId);
+    }
+
+    updateSecurityRule(type, updates) {
+        const currentRule = this.securityRules.get(type);
+        if (currentRule) {
+            this.securityRules.set(type, { ...currentRule, ...updates });
+        }
+    }
+
+    clearRateLimits(userId) {
+        for (const [key] of this.rateLimits.entries()) {
+            if (key.startsWith(userId)) {
+                this.rateLimits.delete(key);
+            }
+        }
     }
 }
 
-module.exports = SecurityHandler; 
+module.exports = SecurityHandler;
