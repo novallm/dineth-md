@@ -58,7 +58,7 @@ git clone https://github.com/novallm/dineth-md.git
 
 2. Install
 \`\`\`bash
-cd dinethmd-bot
+cd dineth-md
 npm install
 \`\`\`
 
