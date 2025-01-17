@@ -53,7 +53,7 @@
 ### Quick Start
 1. Clone repository
 \`\`\`bash
-git clone https://github.com/dinethnethsara/dinethmd-bot.git
+git clone https://github.com/novallm/dineth-md.git
 \`\`\`
 
 2. Install
